@@ -1,0 +1,492 @@
+{% extends "base.html" %}
+
+{% block title %}Pencarian Data PDDikti - Classy Indonesia{% endblock %}
+
+{% block content %}
+<!-- Search Header -->
+<section class="gradient-bg text-white py-12">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="text-center">
+            <div class="w-16 h-16 mx-auto mb-4 bg-white rounded-xl flex items-center justify-center">
+                <i class="fas fa-search text-classy-orange text-2xl"></i>
+            </div>
+            <h1 class="text-3xl md:text-4xl font-bold mb-4">Pencarian Data PDDikti</h1>
+            <p class="text-xl text-orange-100">Cari data mahasiswa, dosen, program studi, dan perguruan tinggi</p>
+        </div>
+    </div>
+</section>
+
+<!-- Search Form -->
+<section class="py-12 bg-gray-50">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="bg-white rounded-xl shadow-lg p-8 mb-8">
+            <form id="main-search-form" class="space-y-6">
+                <div class="grid lg:grid-cols-4 md:grid-cols-2 gap-6">
+                    <div>
+                        <label class="block text-sm font-medium text-classy-gray mb-2">Jenis Pencarian</label>
+                        <select id="search-type" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-classy-orange focus:border-transparent">
+                            <option value="mahasiswa">Mahasiswa</option>
+                            <option value="dosen">Dosen</option>
+                           
+                        </select>
+                    </div>
+                    
+                    <div class="lg:col-span-2">
+                        <label class="block text-sm font-medium text-classy-gray mb-2">Kata Kunci</label>
+                        <input type="text" id="search-query" placeholder="Masukkan nama yang ingin dicari..." 
+                               class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-classy-orange focus:border-transparent"
+                               autocomplete="off">
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm font-medium text-classy-gray mb-2">Jumlah Hasil</label>
+                        <select id="search-limit" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-classy-orange focus:border-transparent">
+                            <option value="10">10 hasil</option>
+                            <option value="20" selected>20 hasil</option>
+                            <option value="50">50 hasil</option>
+                            <option value="100">100 hasil</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <div class="flex flex-col sm:flex-row gap-4 justify-center">
+                    <button type="submit" id="search-btn" class="bg-classy-orange hover:bg-classy-orange-dark text-white px-8 py-3 rounded-lg font-semibold text-lg transition-colors duration-300">
+                        <i class="fas fa-search mr-2"></i>Cari Data
+                    </button>
+                    <button type="button" id="clear-btn" class="bg-classy-gray hover:bg-classy-gray-dark text-white px-8 py-3 rounded-lg font-semibold text-lg transition-colors duration-300">
+                        <i class="fas fa-eraser mr-2"></i>Reset
+                    </button>
+                </div>
+            </form>
+        </div>
+        
+        <!-- Tips -->
+        <div class="bg-orange-50 border border-orange-200 rounded-lg p-4 mb-8">
+            <h3 class="font-semibold text-classy-orange-dark mb-2">Tips:</h3>
+            <p class="text-classy-gray text-sm">Gunakan nama lengkap untuk hasil akurat. Pencarian tidak case-sensitive.</p>
+        </div>
+        
+        <!-- Loading -->
+        <div id="loading-state" class="hidden text-center py-12">
+            <i class="fas fa-spinner fa-spin text-4xl text-classy-orange mb-4"></i>
+            <p class="text-lg text-classy-gray">Mencari data...</p>
+        </div>
+        
+        <!-- Results -->
+        <div id="search-results" class="hidden">
+            <div class="flex items-center justify-between mb-6">
+                <h2 class="text-2xl font-bold text-classy-gray">Hasil Pencarian</h2>
+                <div id="results-info" class="text-classy-gray-light"></div>
+            </div>
+            <div id="results-container" class="space-y-4"></div>
+        </div>
+        
+        <!-- No Results -->
+        <div id="no-results" class="hidden text-center py-12">
+            <i class="fas fa-search-minus text-6xl text-classy-gray-light mb-4"></i>
+            <h3 class="text-xl font-semibold text-classy-gray mb-2">Tidak Ada Hasil</h3>
+            <p class="text-classy-gray-light mb-6">Coba kata kunci lain</p>
+            <button onclick="document.getElementById('search-query').focus()" class="text-classy-orange hover:text-classy-orange-dark font-medium">
+                Coba Lagi
+            </button>
+        </div>
+        
+        <!-- Error -->
+        <div id="error-state" class="hidden text-center py-12">
+            <i class="fas fa-exclamation-triangle text-6xl text-red-400 mb-4"></i>
+            <h3 class="text-xl font-semibold text-red-600 mb-2">Terjadi Kesalahan</h3>
+            <p id="error-message" class="text-classy-gray-light mb-6"></p>
+            <button onclick="retrySearch()" class="bg-red-600 hover:bg-red-700 text-white px-6 py-2 rounded-lg font-medium transition-colors">
+                Coba Lagi
+            </button>
+        </div>
+    </div>
+</section>
+
+<!-- Detail Modal -->
+<div id="detail-modal" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
+    <div class="bg-white rounded-xl shadow-2xl max-w-4xl w-full max-h-[90vh] overflow-y-auto">
+        <div class="flex items-center justify-between p-6 border-b border-gray-200">
+            <h3 class="text-xl font-semibold text-classy-gray">Detail Informasi</h3>
+            <button id="close-modal" class="text-classy-gray-light hover:text-classy-gray transition-colors">
+                <i class="fas fa-times text-xl"></i>
+            </button>
+        </div>
+        <div id="modal-content" class="p-6"></div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    let currentSearchData = null;
+    
+    const searchForm = document.getElementById('main-search-form');
+    const searchBtn = document.getElementById('search-btn');
+    const clearBtn = document.getElementById('clear-btn');
+    const loadingState = document.getElementById('loading-state');
+    const searchResults = document.getElementById('search-results');
+    const noResults = document.getElementById('no-results');
+    const errorState = document.getElementById('error-state');
+    const resultsContainer = document.getElementById('results-container');
+    const resultsInfo = document.getElementById('results-info');
+    const detailModal = document.getElementById('detail-modal');
+    const closeModal = document.getElementById('close-modal');
+    const modalContent = document.getElementById('modal-content');
+    
+    searchForm.addEventListener('submit', async function(e) {
+        e.preventDefault();
+        await performSearch();
+    });
+    
+    clearBtn.addEventListener('click', function() {
+        document.getElementById('search-query').value = '';
+        document.getElementById('search-type').value = 'mahasiswa';
+        document.getElementById('search-limit').value = '20';
+        hideAllStates();
+        document.getElementById('search-query').focus();
+    });
+    
+    closeModal.addEventListener('click', closeDetailModal);
+    detailModal.addEventListener('click', function(e) {
+        if (e.target === detailModal) closeDetailModal();
+    });
+    
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape' && !detailModal.classList.contains('hidden')) {
+            closeDetailModal();
+        }
+    });
+    
+    async function performSearch() {
+        const type = document.getElementById('search-type').value;
+        const query = document.getElementById('search-query').value.trim();
+        const limit = parseInt(document.getElementById('search-limit').value);
+        
+        if (!query) {
+            showToast('Masukkan kata kunci', 'warning');
+            return;
+        }
+        
+        hideAllStates();
+        loadingState.classList.remove('hidden');
+        
+        const originalBtnText = searchBtn.innerHTML;
+        showLoading(searchBtn);
+        
+        try {
+            const response = await fetch('/api/search', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ type, query, limit })
+            });
+            
+            const data = await response.json();
+            
+            if (data.error) {
+                showErrorState(data.error);
+            } else if (Array.isArray(data)) {
+                if (data.length === 0) {
+                    showNoResults();
+                } else {
+                    const wrappedData = { data: data, total: data.length, query: query };
+                    currentSearchData = wrappedData;
+                    displayResults(wrappedData, type);
+                    showToast(`Ditemukan ${data.length} hasil`, 'success');
+                }
+            } else if (data.data && Array.isArray(data.data)) {
+                if (data.data.length === 0) {
+                    showNoResults();
+                } else {
+                    currentSearchData = data;
+                    displayResults(data, type);
+                    showToast(`Ditemukan ${data.data.length} hasil`, 'success');
+                }
+            } else {
+                showErrorState('Format data tidak dikenali');
+            }
+            
+        } catch (error) {
+            console.error('Search error:', error);
+            showErrorState('Terjadi kesalahan saat mencari data');
+        } finally {
+            loadingState.classList.add('hidden');
+            hideLoading(searchBtn, originalBtnText);
+        }
+    }
+    
+    function displayResults(data, type) {
+        hideAllStates();
+        searchResults.classList.remove('hidden');
+        
+        resultsInfo.innerHTML = `<span class="text-sm text-classy-gray-light">Menampilkan ${data.data.length} hasil untuk "<strong>${document.getElementById('search-query').value}</strong>"</span>`;
+        resultsContainer.innerHTML = data.data.map(item => createResultCard(item, type)).join('');
+        searchResults.scrollIntoView({ behavior: 'smooth' });
+    }
+    
+    function createResultCard(item, type) {
+        const icons = {
+            'mahasiswa': { icon: 'fa-user-graduate', color: 'classy-orange', bgColor: 'bg-orange-50' },
+            'dosen': { icon: 'fa-chalkboard-teacher', color: 'green-600', bgColor: 'bg-green-50' },
+            'prodi': { icon: 'fa-book-open', color: 'purple-600', bgColor: 'bg-purple-50' },
+            'pt': { icon: 'fa-university', color: 'red-600', bgColor: 'bg-red-50' }
+        };
+        
+        const config = icons[type] || { icon: 'fa-info-circle', color: 'classy-gray', bgColor: 'bg-gray-50' };
+        
+        return `
+            <div class="bg-white rounded-lg shadow-md border border-orange-100 p-6 hover:shadow-xl transition-all duration-300">
+                <div class="flex items-start space-x-4">
+                    <div class="flex-shrink-0">
+                        <div class="w-12 h-12 ${config.bgColor} rounded-full flex items-center justify-center">
+                            <i class="fas ${config.icon} text-${config.color} text-xl"></i>
+                        </div>
+                    </div>
+                    <div class="flex-1 min-w-0">
+                        <div class="flex items-start justify-between">
+                            <div class="flex-1">
+                                <h3 class="text-lg font-semibold text-classy-gray mb-2">${item.nama || item.name || 'Nama tidak tersedia'}</h3>
+                                ${getResultDetails(item, type)}
+                            </div>
+                            <div class="flex-shrink-0 ml-4">
+                                ${getActionButtons(item, type)}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        `;
+    }
+    
+    function getResultDetails(item, type) {
+        switch(type) {
+            case 'mahasiswa':
+                return `
+                    <div class="space-y-1 text-sm text-classy-gray-light">
+                        ${item.nim ? `<p><strong>NIM:</strong> ${item.nim}</p>` : ''}
+                        ${item.nama_pt ? `<p><strong>PT:</strong> ${item.nama_pt}</p>` : ''}
+                        ${item.nama_prodi ? `<p><strong>Prodi:</strong> ${item.nama_prodi}</p>` : ''}
+                    </div>
+                `;
+            case 'dosen':
+                return `
+                    <div class="space-y-1 text-sm text-classy-gray-light">
+                        ${item.nidn ? `<p><strong>NIDN:</strong> ${item.nidn}</p>` : ''}
+                        ${item.nama_pt ? `<p><strong>PT:</strong> ${item.nama_pt}</p>` : ''}
+                    </div>
+                `;
+            case 'prodi':
+                return `
+                    <div class="space-y-1 text-sm text-classy-gray-light">
+                        ${item.jenjang ? `<p><strong>Jenjang:</strong> ${item.jenjang}</p>` : ''}
+                        ${item.nama_pt ? `<p><strong>PT:</strong> ${item.nama_pt}</p>` : ''}
+                    </div>
+                `;
+            case 'pt':
+                return `
+                    <div class="space-y-1 text-sm text-classy-gray-light">
+                        ${item.kota ? `<p><strong>Kota:</strong> ${item.kota}</p>` : ''}
+                        ${item.status ? `<p><strong>Status:</strong> ${item.status}</p>` : ''}
+                    </div>
+                `;
+            default:
+                return '<p class="text-sm text-classy-gray-light">Detail tidak tersedia</p>';
+        }
+    }
+    
+    function getActionButtons(item, type) {
+        const detailId = item.id || item.nim || item.nidn || item.nip || item.kode_prodi || item.kode_pt;
+        
+        return `
+            <div class="flex flex-col space-y-2">
+                ${detailId ? `<button onclick="showDetail('${type}', '${detailId}')" class="bg-classy-orange hover:bg-classy-orange-dark text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors duration-300">Detail</button>` : ''}
+                <button onclick="copyToClipboard('${JSON.stringify(item).replace(/'/g, "\\'")}', '${type}')" class="bg-classy-gray hover:bg-classy-gray-dark text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors duration-300">Copy</button>
+            </div>
+        `;
+    }
+    
+    async function showDetail(type, id) {
+        modalContent.innerHTML = `
+            <div class="text-center py-8">
+                <i class="fas fa-spinner fa-spin text-4xl text-classy-orange mb-4"></i>
+                <p class="text-lg text-classy-gray">Mengambil detail...</p>
+            </div>
+        `;
+        
+        detailModal.classList.remove('hidden');
+        
+        try {
+            const response = await fetch('/api/detail', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ type, id })
+            });
+            
+            const data = await response.json();
+            
+            if (data.error) {
+                modalContent.innerHTML = `
+                    <div class="text-center py-8">
+                        <i class="fas fa-exclamation-triangle text-4xl text-red-500 mb-4"></i>
+                        <p class="text-lg text-red-600 mb-4">${data.error}</p>
+                        <button onclick="closeDetailModal()" class="bg-red-600 hover:bg-red-700 text-white px-6 py-2 rounded-lg font-medium">Tutup</button>
+                    </div>
+                `;
+            } else {
+                displayDetailData(data, type);
+            }
+        } catch (error) {
+            modalContent.innerHTML = `
+                <div class="text-center py-8">
+                    <i class="fas fa-exclamation-triangle text-4xl text-red-500 mb-4"></i>
+                    <p class="text-lg text-red-600 mb-4">Terjadi kesalahan</p>
+                    <button onclick="closeDetailModal()" class="bg-red-600 hover:bg-red-700 text-white px-6 py-2 rounded-lg font-medium">Tutup</button>
+                </div>
+            `;
+        }
+    }
+    
+    function displayDetailData(data, type) {
+        const item = data.data || data;
+        
+        modalContent.innerHTML = `
+            <div class="space-y-6">
+                <div class="bg-orange-50 rounded-lg p-6 border border-orange-100">
+                    <h4 class="text-lg font-semibold text-classy-gray mb-4">Informasi Detail</h4>
+                    <div class="grid md:grid-cols-2 gap-4">
+                        ${Object.entries(item).map(([key, value]) => {
+                            if (value && key !== 'id' && key !== '_id') {
+                                return `
+                                    <div class="flex flex-col">
+                                        <span class="text-sm font-medium text-classy-gray-light uppercase">${formatFieldName(key)}</span>
+                                        <span class="mt-1 text-classy-gray">${value}</span>
+                                    </div>
+                                `;
+                            }
+                            return '';
+                        }).join('')}
+                    </div>
+                </div>
+                
+                <div class="flex justify-between items-center">
+                    <button onclick="copyDetailToClipboard('${JSON.stringify(item).replace(/'/g, "\\'")}', '${type}')" class="bg-classy-orange hover:bg-classy-orange-dark text-white px-6 py-2 rounded-lg font-medium transition-colors">Copy Detail</button>
+                    <button onclick="closeDetailModal()" class="bg-classy-gray hover:bg-classy-gray-dark text-white px-6 py-2 rounded-lg font-medium transition-colors">Tutup</button>
+                </div>
+            </div>
+        `;
+    }
+    
+    function formatFieldName(key) {
+        const fieldNames = {
+            // Basic Info
+            'nama': 'Nama Lengkap', 'nim': 'NIM', 'nidn': 'NIDN', 'nip': 'NIP',
+            'nama_pt': 'Perguruan Tinggi', 'nama_prodi': 'Program Studi',
+            'nama_perguruan_tinggi': 'Perguruan Tinggi', 'nama_program_studi': 'Program Studi',
+            
+            // Academic
+            'kode_prodi': 'Kode Prodi', 'jenjang': 'Jenjang', 'status': 'Status',
+            'semester_berjalan': 'Semester Berjalan', 'ipk': 'IPK',
+            'sks_total': 'Total SKS', 'mulai_smt': 'Mulai Semester',
+            
+            // Personal
+            'jenis_kelamin': 'Jenis Kelamin', 'tempat_lahir': 'Tempat Lahir', 
+            'tanggal_lahir': 'Tanggal Lahir', 'alamat': 'Alamat', 
+            'kewarganegaraan': 'Kewarganegaraan', 'agama': 'Agama',
+            
+            // Location
+            'kota': 'Kota', 'provinsi': 'Provinsi', 'kabupaten': 'Kabupaten',
+            'kelurahan': 'Kelurahan', 'kode_pos': 'Kode Pos',
+            
+            // Contact
+            'website': 'Website', 'email': 'Email', 'telepon': 'Telepon',
+            
+            // Professional
+            'jabatan': 'Jabatan', 'jabatan_fungsional': 'Jabatan Fungsional',
+            'ikatan_kerja': 'Ikatan Kerja', 'status_pegawai': 'Status Pegawai',
+            'bidang_ilmu': 'Bidang Ilmu',
+            
+            // Other
+            'sinkatan_pt': 'Singkatan PT', 'akreditasi': 'Akreditasi',
+            'kode_pt': 'Kode PT', 'kode_sdm': 'Kode SDM',
+            'gelar_depan': 'Gelar Depan', 'gelar_belakang': 'Gelar Belakang'
+        };
+        return fieldNames[key] || key.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
+    }
+    
+    function closeDetailModal() {
+        detailModal.classList.add('hidden');
+        modalContent.innerHTML = '';
+    }
+    
+    function copyToClipboard(itemJson, type) {
+        try {
+            const item = JSON.parse(itemJson.replace(/\\'/g, "'"));
+            const text = JSON.stringify(item, null, 2);
+            
+            if (navigator.clipboard) {
+                navigator.clipboard.writeText(text).then(() => {
+                    showToast('Data berhasil disalin', 'success');
+                });
+            } else {
+                const textArea = document.createElement('textarea');
+                textArea.value = text;
+                document.body.appendChild(textArea);
+                textArea.select();
+                document.execCommand('copy');
+                document.body.removeChild(textArea);
+                showToast('Data berhasil disalin', 'success');
+            }
+        } catch (error) {
+            showToast('Gagal menyalin data', 'error');
+        }
+    }
+    
+    function copyDetailToClipboard(itemJson, type) {
+        copyToClipboard(itemJson, type);
+        closeDetailModal();
+    }
+    
+    function hideAllStates() {
+        loadingState.classList.add('hidden');
+        searchResults.classList.add('hidden');
+        noResults.classList.add('hidden');
+        errorState.classList.add('hidden');
+    }
+    
+    function showNoResults() {
+        hideAllStates();
+        noResults.classList.remove('hidden');
+    }
+    
+    function showErrorState(message) {
+        hideAllStates();
+        document.getElementById('error-message').textContent = message;
+        errorState.classList.remove('hidden');
+    }
+    
+    function retrySearch() {
+        if (document.getElementById('search-query').value.trim()) {
+            performSearch();
+        }
+    }
+    
+    document.addEventListener('DOMContentLoaded', function() {
+        const searchInput = document.getElementById('search-query');
+        if (searchInput && window.innerWidth > 768) {
+            setTimeout(() => searchInput.focus(), 500);
+        }
+        
+        const urlParams = new URLSearchParams(window.location.search);
+        const query = urlParams.get('q');
+        const type = urlParams.get('type');
+        
+        if (query) {
+            document.getElementById('search-query').value = query;
+            if (type) {
+                document.getElementById('search-type').value = type;
+            }
+            performSearch();
+        }
+    });
+</script>
+{% endblock %}
