@@ -1,0 +1,394 @@
+{% extends "base.html" %}
+
+{% block title %}Classy PDDikti - Portal Data Pendidikan Tinggi Indonesia{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+<section class="gradient-bg text-white py-20">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="text-center animate-fade-in">
+            <div class="w-24 h-24 mx-auto mb-6 bg-white rounded-2xl flex items-center justify-center logo-float classy-shadow">
+                <i class="fas fa-graduation-cap text-classy-orange text-4xl"></i>
+            </div>
+            <h1 class="text-4xl md:text-6xl font-bold mb-6">
+                Classy PDDikti
+            </h1>
+            <p class="text-xl md:text-2xl mb-8 text-orange-100 max-w-3xl mx-auto">
+                Portal pencarian data pendidikan tinggi Indonesia dengan antarmuka yang elegan dan mudah digunakan. 
+                Temukan informasi mahasiswa, dosen, program studi, dan perguruan tinggi dengan cepat.
+            </p>
+            <div class="flex flex-col sm:flex-row gap-4 justify-center">
+                <a href="{{ url_for('search') }}" class="bg-white text-classy-orange px-8 py-4 rounded-lg font-semibold text-lg hover:bg-orange-50 transition-colors duration-300 shadow-lg">
+                    <i class="fas fa-search mr-2"></i>
+                    Mulai Pencarian
+                </a>
+                <a href="{{ url_for('about') }}" class="glass-effect text-white px-8 py-4 rounded-lg font-semibold text-lg hover:bg-white/20 transition-colors duration-300">
+                    <i class="fas fa-info-circle mr-2"></i>
+                    Tentang Aplikasi
+                </a>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- API Status -->
+{% if api_status %}
+<section class="py-8 bg-white">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="bg-gradient-to-r from-orange-50 to-gray-50 rounded-lg p-6 animate-slide-up border border-orange-100">
+            <div class="flex items-center justify-between flex-wrap gap-4">
+                <div class="flex items-center space-x-4">
+                    <div class="w-3 h-3 bg-green-500 rounded-full animate-pulse"></div>
+                    <div>
+                        <h3 class="font-semibold text-classy-gray">Status API</h3>
+                        <p class="text-sm text-classy-gray-light">{{ api_status.status.message or "API berfungsi normal" }}</p>
+                    </div>
+                </div>
+                <div class="text-right">
+                    <p class="text-sm text-classy-gray">Version {{ api_status.meta.version.current }}</p>
+                    <p class="text-xs text-classy-gray-light">Updated: {{ api_status.meta.last_updated }}</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endif %}
+
+<!-- Features Section -->
+<section class="py-16 bg-white">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="text-center mb-16">
+            <h2 class="text-3xl md:text-4xl font-bold text-classy-gray mb-4">
+                Fitur Pencarian
+            </h2>
+            <p class="text-xl text-classy-gray-light max-w-3xl mx-auto">
+                Akses berbagai jenis data pendidikan tinggi Indonesia dengan interface yang elegan dan mudah digunakan
+            </p>
+        </div>
+        
+        <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
+            <!-- Mahasiswa -->
+            <div class="search-card bg-white p-8 rounded-xl shadow-lg border border-gray-100 text-center transition-all duration-300 hover:shadow-xl">
+                <div class="w-16 h-16 mx-auto mb-4 bg-orange-100 rounded-full flex items-center justify-center">
+                    <i class="fas fa-user-graduate text-2xl text-classy-orange"></i>
+                </div>
+                <h3 class="text-xl font-semibold mb-3 text-classy-gray">Mahasiswa</h3>
+                <p class="text-classy-gray-light mb-4">
+                    Cari data mahasiswa berdasarkan nama dan dapatkan informasi lengkap profil akademik
+                </p>
+                <a href="{{ url_for('search') }}#mahasiswa" class="inline-flex items-center text-classy-orange hover:text-classy-orange-dark font-medium">
+                    Cari Mahasiswa
+                    <i class="fas fa-arrow-right ml-2"></i>
+                </a>
+            </div>
+            
+            <!-- Dosen -->
+            <div class="search-card bg-white p-8 rounded-xl shadow-lg border border-gray-100 text-center transition-all duration-300 hover:shadow-xl">
+                <div class="w-16 h-16 mx-auto mb-4 bg-green-100 rounded-full flex items-center justify-center">
+                    <i class="fas fa-chalkboard-teacher text-2xl text-green-600"></i>
+                </div>
+                <h3 class="text-xl font-semibold mb-3 text-classy-gray">Dosen</h3>
+                <p class="text-classy-gray-light mb-4">
+                    Temukan profil dosen dan pengajar di seluruh perguruan tinggi Indonesia
+                </p>
+                <a href="{{ url_for('search') }}#dosen" class="inline-flex items-center text-green-600 hover:text-green-800 font-medium">
+                    Cari Dosen
+                    <i class="fas fa-arrow-right ml-2"></i>
+                </a>
+            </div>
+            
+            <!-- Program Studi -->
+            <div class="search-card bg-white p-8 rounded-xl shadow-lg border border-gray-100 text-center transition-all duration-300 hover:shadow-xl">
+                <div class="w-16 h-16 mx-auto mb-4 bg-purple-100 rounded-full flex items-center justify-center">
+                    <i class="fas fa-book-open text-2xl text-purple-600"></i>
+                </div>
+                <h3 class="text-xl font-semibold mb-3 text-classy-gray">Program Studi</h3>
+                <p class="text-classy-gray-light mb-4">
+                    Jelajahi berbagai program studi yang tersedia di perguruan tinggi
+                </p>
+                <a href="{{ url_for('search') }}#prodi" class="inline-flex items-center text-purple-600 hover:text-purple-800 font-medium">
+                    Cari Program Studi
+                    <i class="fas fa-arrow-right ml-2"></i>
+                </a>
+            </div>
+            
+            <!-- Perguruan Tinggi -->
+            <div class="search-card bg-white p-8 rounded-xl shadow-lg border border-gray-100 text-center transition-all duration-300 hover:shadow-xl">
+                <div class="w-16 h-16 mx-auto mb-4 bg-red-100 rounded-full flex items-center justify-center">
+                    <i class="fas fa-university text-2xl text-red-600"></i>
+                </div>
+                <h3 class="text-xl font-semibold mb-3 text-classy-gray">Perguruan Tinggi</h3>
+                <p class="text-classy-gray-light mb-4">
+                    Cari informasi lengkap tentang perguruan tinggi di Indonesia
+                </p>
+                <a href="{{ url_for('search') }}#pt" class="inline-flex items-center text-red-600 hover:text-red-800 font-medium">
+                    Cari Perguruan Tinggi
+                    <i class="fas fa-arrow-right ml-2"></i>
+                </a>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Quick Search Section -->
+<section class="py-16 bg-gray-50">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="text-center mb-12">
+            <h2 class="text-3xl md:text-4xl font-bold text-classy-gray mb-4">
+                Pencarian Cepat
+            </h2>
+            <p class="text-xl text-classy-gray-light">
+                Mulai pencarian langsung dari halaman utama
+            </p>
+        </div>
+        
+        <div class="bg-white rounded-xl shadow-lg p-8 max-w-4xl mx-auto classy-shadow">
+            <form id="quick-search-form" class="space-y-6">
+                <div class="grid md:grid-cols-2 gap-6">
+                    <div>
+                        <label class="block text-sm font-medium text-classy-gray mb-2">
+                            <i class="fas fa-search mr-2 text-classy-orange"></i>Jenis Pencarian
+                        </label>
+                        <select id="quick-search-type" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-classy-orange focus:border-transparent">
+                            <option value="mahasiswa">Mahasiswa</option>
+                            <option value="dosen">Dosen</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-classy-gray mb-2">
+                            <i class="fas fa-keyboard mr-2 text-classy-orange"></i>Kata Kunci
+                        </label>
+                        <input type="text" id="quick-search-query" placeholder="Masukkan nama yang ingin dicari..." 
+                               class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-classy-orange focus:border-transparent">
+                    </div>
+                </div>
+                
+                <div class="text-center">
+                    <button type="submit" class="bg-classy-orange hover:bg-classy-orange-dark text-white px-8 py-3 rounded-lg font-semibold text-lg transition-colors duration-300 shadow-lg">
+                        <i class="fas fa-search mr-2"></i>
+                        Cari Sekarang
+                    </button>
+                </div>
+            </form>
+            
+            <!-- Quick Search Results -->
+            <div id="quick-search-results" class="hidden mt-8">
+                <h3 class="text-lg font-semibold mb-4 text-classy-gray">
+                    <i class="fas fa-list mr-2 text-classy-orange"></i>Hasil Pencarian
+                </h3>
+                <div id="quick-results-container" class="space-y-4">
+                    <!-- Results will be populated here -->
+                </div>
+                <div class="text-center mt-6">
+                    <a href="{{ url_for('search') }}" class="text-classy-orange hover:text-classy-orange-dark font-medium">
+                        Lihat Hasil Lengkap di Halaman Pencarian
+                        <i class="fas fa-arrow-right ml-2"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- About Classy Section -->
+<section class="py-16 bg-white">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="bg-gradient-to-r from-classy-orange to-classy-orange-light rounded-2xl p-8 md:p-12 text-white">
+            <div class="text-center">
+                <div class="w-20 h-20 mx-auto mb-6 bg-white rounded-2xl flex items-center justify-center">
+                    <i class="fas fa-laptop-code text-classy-orange text-3xl"></i>
+                </div>
+                <h2 class="text-3xl md:text-4xl font-bold mb-4">
+                    Tentang Classy PDDikti
+                </h2>
+                <p class="text-xl text-orange-100 mb-8 max-w-3xl mx-auto">
+                    Aplikasi frontend untuk API PDDikti yang dikembangkan oleh ridwaanhall. 
+                    Dimodifikasi dengan antarmuka yang lebih elegan dan user-friendly oleh tim Classy Indonesia.
+                </p>
+                <div class="grid md:grid-cols-2 gap-8 text-left max-w-4xl mx-auto">
+                    <div class="bg-white/10 rounded-lg p-6 backdrop-blur-sm">
+                        <h3 class="font-semibold text-lg mb-3">
+                            <i class="fas fa-code mr-2"></i>API Developer
+                        </h3>
+                        <p class="text-orange-100">
+                            <strong>ridwaanhall</strong><br>
+                            Pengembang API PDDikti yang menyediakan akses data pendidikan tinggi Indonesia
+                        </p>
+                    </div>
+                    <div class="bg-white/10 rounded-lg p-6 backdrop-blur-sm">
+                        <h3 class="font-semibold text-lg mb-3">
+                            <i class="fas fa-palette mr-2"></i>Frontend Developer
+                        </h3>
+                        <p class="text-orange-100">
+                            <strong>Andri Wiratmono</strong><br>
+                            Classy Indonesia - Modifikasi frontend dengan tema yang elegan dan modern
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Quick search functionality
+    document.getElementById('quick-search-form').addEventListener('submit', async function(e) {
+        e.preventDefault();
+        
+        const type = document.getElementById('quick-search-type').value;
+        const query = document.getElementById('quick-search-query').value.trim();
+        const submitBtn = e.target.querySelector('button[type="submit"]');
+        const resultsDiv = document.getElementById('quick-search-results');
+        const resultsContainer = document.getElementById('quick-results-container');
+        
+        if (!query) {
+            showToast('Masukkan kata kunci pencarian', 'warning');
+            return;
+        }
+        
+        // Show loading state
+        const originalBtnText = submitBtn.innerHTML;
+        showLoading(submitBtn);
+        
+        try {
+            const response = await fetch('/api/search', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    type: type,
+                    query: query,
+                    limit: 5 // Limit results for quick search
+                })
+            });
+            
+            const data = await response.json();
+            
+            if (data.error) {
+                showToast(data.error, 'error');
+                resultsDiv.classList.add('hidden');
+            } else if (Array.isArray(data)) {
+                // Handle direct array response
+                if (data.length === 0) {
+                    showToast('Tidak ada hasil ditemukan', 'warning');
+                    resultsDiv.classList.add('hidden');
+                } else {
+                    displayQuickResults({data: data}, type);
+                    resultsDiv.classList.remove('hidden');
+                    resultsDiv.scrollIntoView({ behavior: 'smooth' });
+                }
+            } else if (data.data && data.data.length > 0) {
+                // Handle wrapped response
+                displayQuickResults(data, type);
+                resultsDiv.classList.remove('hidden');
+                resultsDiv.scrollIntoView({ behavior: 'smooth' });
+            } else {
+                showToast('Tidak ada hasil ditemukan', 'warning');
+                resultsDiv.classList.add('hidden');
+            }
+            
+        } catch (error) {
+            showToast('Terjadi kesalahan saat mencari data', 'error');
+            console.error('Search error:', error);
+        } finally {
+            hideLoading(submitBtn, originalBtnText);
+        }
+    });
+    
+    function displayQuickResults(data, type) {
+        const container = document.getElementById('quick-results-container');
+        
+        if (!data.data || data.data.length === 0) {
+            container.innerHTML = `
+                <div class="text-center py-8 text-classy-gray-light">
+                    <i class="fas fa-search-minus text-4xl mb-4"></i>
+                    <p class="text-lg">Tidak ada hasil ditemukan</p>
+                </div>
+            `;
+            return;
+        }
+        
+        const results = data.data.slice(0, 5); // Show max 5 results
+        
+        container.innerHTML = results.map(item => {
+            const icons = {
+                'mahasiswa': 'fa-user-graduate text-classy-orange',
+                'dosen': 'fa-chalkboard-teacher text-green-600',
+                'prodi': 'fa-book-open text-purple-600',
+                'pt': 'fa-university text-red-600'
+            };
+            
+            const icon = icons[type] || 'fa-info-circle text-classy-gray';
+            
+            return `
+                <div class="bg-gray-50 p-4 rounded-lg border border-orange-100 hover:shadow-md transition-shadow">
+                    <div class="flex items-start space-x-3">
+                        <i class="fas ${icon} text-xl mt-1"></i>
+                        <div class="flex-1">
+                            <h4 class="font-semibold text-classy-gray">${item.nama || item.name || 'N/A'}</h4>
+                            ${getItemDetails(item, type)}
+                        </div>
+                    </div>
+                </div>
+            `;
+        }).join('');
+    }
+    
+    function getItemDetails(item, type) {
+        switch(type) {
+            case 'mahasiswa':
+                return `
+                    <p class="text-sm text-classy-gray-light mt-1">
+                        <i class="fas fa-id-card mr-1 text-classy-orange"></i> ${item.nim || 'NIM tidak tersedia'}
+                    </p>
+                    <p class="text-sm text-classy-gray-light">
+                        <i class="fas fa-university mr-1 text-classy-orange"></i> ${item.nama_pt || item.perguruan_tinggi || 'PT tidak tersedia'}
+                    </p>
+                `;
+            case 'dosen':
+                return `
+                    <p class="text-sm text-classy-gray-light mt-1">
+                        <i class="fas fa-id-badge mr-1 text-green-600"></i> ${item.nidn || 'NIDN tidak tersedia'}
+                    </p>
+                    <p class="text-sm text-classy-gray-light">
+                        <i class="fas fa-university mr-1 text-green-600"></i> ${item.nama_pt || item.perguruan_tinggi || 'PT tidak tersedia'}
+                    </p>
+                `;
+            case 'prodi':
+                return `
+                    <p class="text-sm text-classy-gray-light mt-1">
+                        <i class="fas fa-certificate mr-1 text-purple-600"></i> ${item.jenjang || 'Jenjang tidak tersedia'}
+                    </p>
+                    <p class="text-sm text-classy-gray-light">
+                        <i class="fas fa-university mr-1 text-purple-600"></i> ${item.nama_pt || item.perguruan_tinggi || 'PT tidak tersedia'}
+                    </p>
+                `;
+            case 'pt':
+                return `
+                    <p class="text-sm text-classy-gray-light mt-1">
+                        <i class="fas fa-map-marker-alt mr-1 text-red-600"></i> ${item.kota || item.alamat || 'Lokasi tidak tersedia'}
+                    </p>
+                    <p class="text-sm text-classy-gray-light">
+                        <i class="fas fa-info-circle mr-1 text-red-600"></i> ${item.status || item.jenis || 'Status tidak tersedia'}
+                    </p>
+                `;
+            default:
+                return '<p class="text-sm text-classy-gray-light mt-1">Detail tidak tersedia</p>';
+        }
+    }
+    
+    // Auto-focus search input when page loads
+    document.addEventListener('DOMContentLoaded', function() {
+        const searchInput = document.getElementById('quick-search-query');
+        if (searchInput) {
+            // Don't auto-focus on mobile to prevent keyboard popup
+            if (window.innerWidth > 768) {
+                setTimeout(() => searchInput.focus(), 500);
+            }
+        }
+    });
+</script>
+{% endblock %}
